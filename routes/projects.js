@@ -25,9 +25,10 @@ router.post('/', async (req, res) => {
       .single();
 
     if (error) {
+      console.error('Supabase insert error:', JSON.stringify(error));
       return res.status(500).json({
         success: false,
-        error: 'Gagal membuat project'
+        error: 'Gagal membuat project: ' + error.message
       });
     }
 
@@ -41,9 +42,10 @@ router.post('/', async (req, res) => {
       }
     });
   } catch (err) {
+    console.error('POST /projects catch error:', err.message);
     return res.status(500).json({
       success: false,
-      error: 'Terjadi kesalahan pada server'
+      error: 'Terjadi kesalahan pada server: ' + err.message
     });
   }
 });
@@ -57,9 +59,10 @@ router.get('/', async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('Supabase select error:', JSON.stringify(error));
       return res.status(500).json({
         success: false,
-        error: 'Gagal mengambil daftar project'
+        error: 'Gagal mengambil daftar project: ' + error.message
       });
     }
 
@@ -68,9 +71,10 @@ router.get('/', async (req, res) => {
       data
     });
   } catch (err) {
+    console.error('GET /projects catch error:', err.message);
     return res.status(500).json({
       success: false,
-      error: 'Terjadi kesalahan pada server'
+      error: 'Terjadi kesalahan pada server: ' + err.message
     });
   }
 });

@@ -12,35 +12,31 @@ router.post('/', validateApiKey, upload, async (req, res) => {
   try {
     const { text_data } = req.body;
 
-    if (!text_data) {
+    // Minimal salah satu harus ada (text atau gambar)
+    if (!text_data && !req.file) {
       return res.status(400).json({
         success: false,
-        error: 'text_data diperlukan'
+        error: 'Minimal harus ada text_data atau file gambar'
       });
     }
 
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        error: 'File gambar diperlukan'
-      });
-    }
-
-    let image_url;
-    try {
-      image_url = await uploadFile(req.file.buffer, req.file.originalname, req.file.mimetype);
-    } catch (uploadError) {
-      return res.status(500).json({
-        success: false,
-        error: 'Gagal mengupload file ke R2'
-      });
+    let image_url = null;
+    if (req.file) {
+      try {
+        image_url = await uploadFile(req.file.buffer, req.file.originalname, req.file.mimetype);
+      } catch (uploadError) {
+        return res.status(500).json({
+          success: false,
+          error: 'Gagal mengupload file ke R2'
+        });
+      }
     }
 
     const { data, error } = await supabase
       .from('entries')
       .insert({
         project_id: req.project_id,
-        text_data,
+        text_data: text_data || null,
         image_url
       })
       .select()

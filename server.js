@@ -5,6 +5,7 @@ validateEnv();
 
 const express = require('express');
 const cors = require('cors');
+const adminAuth = require('./middleware/adminAuth');
 
 const app = express();
 
@@ -16,7 +17,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Mount routes
-app.use('/api/projects', require('./routes/projects'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/projects', adminAuth, require('./routes/projects'));
 app.use('/api/entries', require('./routes/entries'));
 
 // Health check route

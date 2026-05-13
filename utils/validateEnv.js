@@ -13,6 +13,12 @@ function validateEnv() {
     'R2_PUBLIC_URL',
   ];
 
+  const adminVars = [
+    'ADMIN_USERNAME',
+    'ADMIN_PASSWORD',
+    'ADMIN_SECRET',
+  ];
+
   const missing = requiredVars.filter(
     (varName) => !process.env[varName] || process.env[varName].trim() === ''
   );
@@ -20,6 +26,16 @@ function validateEnv() {
   if (missing.length > 0) {
     throw new Error(
       `Environment variables berikut belum di-set: ${missing.join(', ')}`
+    );
+  }
+
+  const missingAdmin = adminVars.filter(
+    (varName) => !process.env[varName] || process.env[varName].trim() === ''
+  );
+
+  if (missingAdmin.length > 0) {
+    throw new Error(
+      `Environment variables admin berikut belum di-set: ${missingAdmin.join(', ')}`
     );
   }
 }

@@ -7,7 +7,7 @@ const router = Router();
 // POST / - Membuat project baru
 router.post('/', async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, access_mode } = req.body;
 
     if (!name) {
       return res.status(400).json({
@@ -16,11 +16,15 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Validate access_mode, default to 'private'
+    const validModes = ['public', 'private'];
+    const mode = validModes.includes(access_mode) ? access_mode : 'private';
+
     const api_key = crypto.randomBytes(32).toString('hex');
 
     const { data, error } = await supabase
       .from('projects')
-      .insert({ name, api_key })
+      .insert({ name, api_key, access_mode: mode })
       .select()
       .single();
 
@@ -38,6 +42,7 @@ router.post('/', async (req, res) => {
         id: data.id,
         name: data.name,
         api_key: data.api_key,
+        access_mode: data.access_mode,
         created_at: data.created_at
       }
     });

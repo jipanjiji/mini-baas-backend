@@ -67,7 +67,8 @@ router.post('/', validateApiKey, upload, async (req, res) => {
   }
 });
 
-// GET /:project_id - Mendapatkan semua entry untuk project (PUBLIC, no auth)
+// GET /:project_id - Mendapatkan semua entry untuk project
+// Public project: tanpa auth. Private project: butuh x-api-key header.
 router.get('/:project_id', async (req, res) => {
   try {
     const { project_id } = req.params;
@@ -78,6 +79,39 @@ router.get('/:project_id', async (req, res) => {
         success: false,
         error: 'Format project_id tidak valid'
       });
+    }
+
+    // Query project to check access_mode
+    const { data: project, error: projectError } = await supabase
+      .from('projects')
+      .select('id, api_key, access_mode')
+      .eq('id', project_id)
+      .single();
+
+    if (projectError || !project) {
+      return res.status(404).json({
+        success: false,
+        error: 'Project tidak ditemukan'
+      });
+    }
+
+    // If private, require x-api-key header
+    if (project.access_mode === 'private') {
+      const apiKey = req.headers['x-api-key'];
+
+      if (!apiKey) {
+        return res.status(401).json({
+          success: false,
+          error: 'API Key diperlukan untuk mengakses project ini'
+        });
+      }
+
+      if (apiKey !== project.api_key) {
+        return res.status(401).json({
+          success: false,
+          error: 'API Key tidak valid'
+        });
+      }
     }
 
     const { data, error } = await supabase

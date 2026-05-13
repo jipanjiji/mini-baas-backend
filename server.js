@@ -36,10 +36,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 3001;
-
-app.listen(PORT, () => {
-  console.log(`Mini BaaS Backend berjalan di port ${PORT}`);
-});
+// Untuk development lokal
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`Mini BaaS Backend berjalan di port ${PORT}`);
+  });
+}
 
 module.exports = app;
